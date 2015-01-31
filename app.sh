@@ -145,7 +145,8 @@ local URL="http://www.ffmpeg.org/releases/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --enable-cross-compile --cross-prefix="${HOST}-" --prefix="${DEPS}" --libdir="${DEST}/lib" --shlibdir="${DEST}/lib" --arch="arm" --target-os=linux --enable-shared --disable-static --enable-rpath --enable-small --enable-zlib --disable-debug --disable-programs
+./configure --enable-cross-compile --cross-prefix="${HOST}-" --prefix="${DEPS}" --libdir="${DEST}/lib" --shlibdir="${DEST}/lib" --arch="arm" --target-os=linux --enable-shared --disable-static --enable-rpath --enable-small --enable-zlib --disable-debug --disable-programs \
+  --disable-armv6 --disable-armv6t2 --disable-vfp --disable-neon
 make
 make install
 popd
