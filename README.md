@@ -27,10 +27,16 @@ Each invocation creates a log file with all the generated output.
 ## Sources
 
 * zlib: http://zlib.net/
-* openssl: https://www.openssl.org/
-* ncurses: https://www.gnu.org/software/ncurses/
-* libxml2: http://xmlsoft.org/
-* nzbget: http://nzbget.net/
+* libuuid: http://e2fsprogs.sourceforge.net/
+* sqlite: http://www.sqlite.org/
+* libexif: http://libexif.sourceforge.net/
+* libjpeg: http://www.ijg.org/
+* libid3tag: http://www.underbit.com/products/mad/
+* libogg: http://www.xiph.org/ogg/
+* libvorbis: http://xiph.org/vorbis/
+* libflac: http://flac.sourceforge.net/
+* ffmpeg: http://www.ffmpeg.org/
+* minidlna: http://sourceforge.net/projects/minidlna/
 
 ## Help support the apps
 
