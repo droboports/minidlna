@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 #
-# Transmission install script
+# install script
 
 prog_dir="$(dirname $(realpath ${0}))"
 name="$(basename ${prog_dir})"
@@ -26,11 +26,9 @@ echo $(date +"%Y-%m-%d %H-%M-%S"): ${0} ${@}
 set -o xtrace
 
 # copy default configuration files
-if [[ -n "$(find "${prog_dir}/etc" -maxdepth 1 -name "*.default")" ]]; then
-  for deffile in ${prog_dir}/etc/*.default; do
-    basefile="${prog_dir}/etc/$(basename ${deffile} .default)"
-    if [ ! -f "${basefile}" ]; then
-      cp -v "${deffile}" "${basefile}"
-    fi
-  done
-fi
+find "${prog_dir}" -type f -name "*.default" -print | while read deffile; do
+  basefile="$(dirname ${deffile})/$(basename ${deffile} .default)"
+  if [[ ! -f "${basefile}" ]]; then
+    cp -vf "${deffile}" "${basefile}"
+  fi
+done
