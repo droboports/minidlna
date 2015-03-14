@@ -11,7 +11,7 @@ framework_version="2.0"
 # app description
 name="minidlna"
 version="1.1.4"
-description="MiniDLNA Media Server"
+description="DLNA/uPNP Media Server"
 
 # framework-mandated variables
 pidfile="/tmp/DroboApps/${name}/pid.txt"
@@ -20,9 +20,46 @@ statusfile="/tmp/DroboApps/${name}/status.txt"
 errorfile="/tmp/DroboApps/${name}/error.txt"
 
 # app-specific variables
-prog_dir=$(dirname $(readlink -fn ${0}))
+prog_dir="$(dirname $(realpath ${0}))"
 daemon="${prog_dir}/sbin/minidlnad"
 conffile="${prog_dir}/etc/minidlna.conf"
+
+# _is_running
+# returns: 0 if app is running, 1 if not running or pidfile does not exist.
+_is_running() {
+  /sbin/start-stop-daemon -K -t -x "${daemon}" -p "${pidfile}" -q
+}
+
+# _is_stopped
+# returns: 0 if stopped, 1 if running.
+_is_stopped() {
+  if _is_running; then
+    return 1;
+  fi
+  return 0;
+}
+
+start() {
+  set -u # exit on unset variable
+  set -e # exit on uncaught error code
+  set -x # enable script trace
+  "${daemon}" -f "${conffile}" -P "${pidfile}"
+}
+
+# override /etc/service.subrc
+stop_service() {
+  if _is_stopped; then
+    echo ${name} is not running >&3
+    if [[ "${1:-}" == "-f" ]]; then
+      return 0
+    else
+      return 1
+    fi
+  fi
+  /sbin/start-stop-daemon -K -x "${daemon}" -p "${pidfile}" -v
+}
+
+### common section
 
 # script hardening
 set -o errexit  # exit on uncaught error code
@@ -39,39 +76,30 @@ exec 3>&1 1>> "${logfile}" 2>&1
 # log current date, time, and invocation parameters
 echo $(date +"%Y-%m-%d %H-%M-%S"): ${0} ${@}
 
-# enable script tracing
-set -o xtrace
-
-# _is_running
-# args: path to pid file
-# returns: 0 if pid is running, 1 if not running or if pidfile does not exist.
-_is_running() {
-  /sbin/start-stop-daemon -K -s 0 -x "${daemon}" -p "${pidfile}" -q
-}
-
-start() {
-  "${daemon}" -f "${conffile}" -P "${pidfile}"
-}
-
 _service_start() {
-  set +e
-  set +u
-  if _is_running "${pidfile}"; then
+  if _is_running; then
     echo ${name} is already running >&3
     return 1
   fi
+  set +x # disable script trace
+  set +e # disable error code check
+  set +u # disable unset variable check
   start_service
-  set -u
-  set -e
 }
 
 _service_stop() {
-  if ! /sbin/start-stop-daemon -K -x "${daemon}" -p "${pidfile}" -v; then echo "${name} is not running" >&3; fi
+  stop_service
+}
+
+_service_waitstop() {
+  stop_service -f
+  while ! _is_stopped; do
+    sleep 1
+  done
 }
 
 _service_restart() {
-  _service_stop
-  sleep 3
+  _service_waitstop
   _service_start
 }
 
@@ -80,12 +108,15 @@ _service_status() {
 }
 
 _service_help() {
-  echo "Usage: $0 [start|stop|restart|status]" >&3
+  echo "Usage: $0 [start|stop|waitstop|restart|status]" >&3
   set +e
   exit 1
 }
 
+# enable script tracing
+set -o xtrace
+
 case "${1:-}" in
-  start|stop|restart|status) _service_${1} ;;
+  start|stop|waitstop|restart|status) _service_${1} ;;
   *) _service_help ;;
 esac
