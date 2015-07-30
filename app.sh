@@ -1,3 +1,6 @@
+CFLAGS="${CFLAGS:-} -ffunction-sections -fdata-sections"
+LDFLAGS="-L${DEST}/lib -L${DEPS}/lib -Wl,--gc-sections"
+
 ### ZLIB ###
 _build_zlib() {
 local VERSION="1.2.8"
@@ -7,10 +10,10 @@ local URL="http://zlib.net/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --prefix="${DEPS}" --libdir="${DEST}/lib" --shared
+./configure --prefix="${DEPS}"
 make
 make install
-rm -v "${DEST}/lib/libz.a"
+rm -vf "${DEPS}/lib/libz.so"*
 popd
 }
 
@@ -23,11 +26,11 @@ local URL="http://sourceforge.net/projects/e2fsprogs/files/e2fsprogs/v${VERSION}
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --host="${HOST}" --prefix="${DEPS}" --libdir="${DEST}/lib" --enable-elf-shlibs --disable-quota
+./configure --host="${HOST}" --prefix="${DEPS}" --disable-elf-shlibs --disable-quota
 cd lib/uuid
 make -j1
 make install
-rm -vf "${DEST}/lib/libuuid.a"
+rm -vf "${DEST}/lib/libuuid.so"*
 popd
 }
 
@@ -40,7 +43,7 @@ local URL="http://sqlite.org/$(date +%Y)/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --host="${HOST}" --prefix="${DEPS}" --libdir="${DEST}/lib" --disable-static
+./configure --host="${HOST}" --prefix="${DEPS}" --disable-shared
 make
 make install
 popd
@@ -55,7 +58,7 @@ local URL="http://sourceforge.net/projects/libexif/files/libexif/${VERSION}/${FI
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --host="${HOST}" --prefix="${DEPS}" --libdir="${DEST}/lib" --disable-static
+./configure --host="${HOST}" --prefix="${DEPS}" --disable-shared
 make
 make install
 popd
@@ -70,7 +73,7 @@ local URL="http://www.ijg.org/files/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --host="${HOST}" --prefix="${DEPS}" --libdir="${DEST}/lib" --disable-static --enable-maxmem=8
+./configure --host="${HOST}" --prefix="${DEPS}" --disable-shared --enable-maxmem=8
 make
 make install
 popd
@@ -85,7 +88,7 @@ local URL="http://sourceforge.net/projects/mad/files/libid3tag/${VERSION}/${FILE
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --host="${HOST}" --prefix="${DEPS}" --libdir="${DEST}/lib" --disable-static --enable-maxmem=8
+./configure --host="${HOST}" --prefix="${DEPS}" --disable-shared --enable-maxmem=8
 make
 make install
 popd
@@ -100,7 +103,7 @@ local URL="http://downloads.xiph.org/releases/ogg/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --host="${HOST}" --prefix="${DEPS}" --libdir="${DEST}/lib" --disable-static
+./configure --host="${HOST}" --prefix="${DEPS}" --disable-shared
 make
 make install
 popd
@@ -115,7 +118,7 @@ local URL="http://downloads.xiph.org/releases/vorbis/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --host="${HOST}" --prefix="${DEPS}" --libdir="${DEST}/lib" --disable-static
+./configure --host="${HOST}" --prefix="${DEPS}" --disable-shared
 make
 make install
 popd
@@ -130,7 +133,7 @@ local URL="http://sourceforge.net/projects/flac/files/flac-src/${FILE}"
 
 _download_xz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --host="${HOST}" --prefix="${DEPS}" --libdir="${DEST}/lib" --disable-static
+./configure --host="${HOST}" --prefix="${DEPS}" --disable-shared
 make
 make install
 popd
@@ -145,7 +148,7 @@ local URL="http://www.ffmpeg.org/releases/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --enable-cross-compile --cross-prefix="${HOST}-" --prefix="${DEPS}" --libdir="${DEST}/lib" --shlibdir="${DEST}/lib" --arch="arm" --target-os=linux --enable-shared --disable-static --enable-rpath --enable-small --enable-zlib --disable-debug --disable-programs
+./configure --enable-cross-compile --cross-prefix="${HOST}-" --prefix="${DEPS}" --ranlib="${RANLIB}" --arch="arm" --target-os=linux --disable-shared --enable-static --enable-rpath --enable-small --enable-zlib --disable-debug --disable-programs
 make
 make install
 popd
@@ -161,10 +164,10 @@ local URL="http://sourceforge.net/projects/minidlna/files/minidlna/${VERSION}/${
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
 pushd "target/${FOLDER}"
-./configure --host="${HOST}" --prefix="${DEST}"
+./configure --host="${HOST}" --prefix="${DEST}" LIBS="-lavformat -lavcodec -lavutil -lswresample -lvorbis -logg -lz -lpthread -lrt -lm -ldl"
 make -j1
 make install
-#$STRIP -s -R .comment -R .note -R .note.ABI-tag "${DEST}/sbin/minidlnad"
+"${STRIP}" -s -R .comment -R .note -R .note.ABI-tag "${DEST}/sbin/minidlnad"
 popd
 }
 
