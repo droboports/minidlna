@@ -43,6 +43,8 @@ pushd "target/${FOLDER}"
 ./configure --host="${HOST}" --prefix="${DEPS}" --libdir="${DEST}/lib" --disable-static
 make
 make install
+mkdir -p "${DEST}/libexec"
+cp -vfa "${DEPS}/bin/sqlite3" "${DEST}/libexec/"
 popd
 }
 
@@ -160,6 +162,7 @@ local FILE="${FOLDER}.tar.gz"
 local URL="http://sourceforge.net/projects/minidlna/files/minidlna/${VERSION}/${FILE}"
 
 _download_tgz "${FILE}" "${URL}" "${FOLDER}"
+cp "src/icons.c" "target/${FOLDER}"
 pushd "target/${FOLDER}"
 ./configure --host="${HOST}" --prefix="${DEST}"
 make -j1
