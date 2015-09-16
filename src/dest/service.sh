@@ -7,10 +7,10 @@
 
 framework_version="2.1"
 name="minidlna"
-version="1.1.4-1"
-description="DLNA/uPNP Media Server"
+version="1.1.5"
+description="MiniDLNA is a simple media server software, fully compliant with DLNA/UPnP-AV clients"
 depends=""
-webui=""
+webui="WebUI"
 
 prog_dir="$(dirname "$(realpath "${0}")")"
 daemon="${prog_dir}/sbin/minidlnad"
@@ -28,6 +28,7 @@ rescan=""
 
 # backwards compatibility
 if [ -z "${FRAMEWORK_VERSION:-}" ]; then
+  framework_version="2.0"
   . "${prog_dir}/libexec/service.subr"
 fi
 
@@ -64,7 +65,6 @@ is_running() {
 start() {
   local _serial
   local _conf
-#  echo 1048576 > /proc/sys/fs/inotify/max_user_watches
   if [ ! -f "${conffile}" ] && [ ! -f "${autofile}" ] && _load_shares; then
     rescan="-R"
   fi

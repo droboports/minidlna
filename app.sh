@@ -140,7 +140,7 @@ popd
 
 ### FFMPEG ###
 _build_ffmpeg() {
-local VERSION="2.7.2"
+local VERSION="2.8"
 local FOLDER="ffmpeg-${VERSION}"
 local FILE="${FOLDER}.tar.gz"
 local URL="http://www.ffmpeg.org/releases/${FILE}"
@@ -156,7 +156,7 @@ popd
 ### MINIDLNA ###
 _build_minidlna() {
 # sudo apt-get install gettext
-local VERSION="1.1.4"
+local VERSION="1.1.5"
 local FOLDER="minidlna-${VERSION}"
 local FILE="${FOLDER}.tar.gz"
 local URL="http://sourceforge.net/projects/minidlna/files/minidlna/${VERSION}/${FILE}"
